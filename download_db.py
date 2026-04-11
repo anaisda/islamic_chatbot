@@ -2,13 +2,14 @@ import os
 import json
 import zipfile
 import io
+import base64
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
 CHROMA_PATH = "./ChromaDB_export"
 FILE_ID = os.environ.get("GDRIVE_FILE_ID", "")
-SERVICE_ACCOUNT_JSON = os.environ.get("GOOGLE_SERVICE_ACCOUNT", "")
+SERVICE_ACCOUNT_B64 = os.environ.get("GOOGLE_SERVICE_ACCOUNT", "")
 
 def download_if_needed():
     # Vérifie si collection déjà présente
@@ -19,14 +20,16 @@ def download_if_needed():
             print(f"✅ ChromaDB déjà présent : {subdirs[0]}")
             return
 
-    if not FILE_ID or not SERVICE_ACCOUNT_JSON:
+    if not FILE_ID or not SERVICE_ACCOUNT_B64:
         print("⚠️  Variables manquantes — mode démo")
         return
 
-    print("📥 Téléchargement depuis Google Drive (Service Account)...")
+    print("📥 Téléchargement depuis Google Drive...")
 
-    # Charger les credentials depuis la variable d'environnement
-    service_account_info = json.loads(SERVICE_ACCOUNT_JSON)
+    # Décoder le base64 → JSON propre
+    json_bytes = base64.b64decode(SERVICE_ACCOUNT_B64)
+    service_account_info = json.loads(json_bytes)
+
     credentials = service_account.Credentials.from_service_account_info(
         service_account_info,
         scopes=["https://www.googleapis.com/auth/drive.readonly"]
@@ -34,17 +37,15 @@ def download_if_needed():
 
     service = build("drive", "v3", credentials=credentials)
 
-    # Télécharger le fichier
     request = service.files().get_media(fileId=FILE_ID)
     zip_buffer = io.BytesIO()
-    downloader = MediaIoBaseDownload(zip_buffer, request)
+    downloader = MediaIoBaseDownload(zip_buffer, request, chunksize=10*1024*1024)
 
     done = False
     while not done:
         status, done = downloader.next_chunk()
         print(f"  {int(status.progress() * 100)}%")
 
-    # Extraire le ZIP
     print("📦 Extraction...")
     os.makedirs(CHROMA_PATH, exist_ok=True)
     zip_buffer.seek(0)
