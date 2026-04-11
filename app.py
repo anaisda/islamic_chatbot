@@ -4,7 +4,8 @@ import pickle
 import numpy as np
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-
+from download_db import download_if_needed
+download_if_needed()
 app = Flask(__name__, static_folder="static", static_url_path="")
 CORS(app)
 
