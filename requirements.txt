@@ -2,8 +2,8 @@ flask
 flask-cors
 openai
 sentence-transformers
-faiss-cpu
-numpy
 chromadb
+numpy
 gunicorn
 python-dotenv
+gdown
