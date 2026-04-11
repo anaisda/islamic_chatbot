@@ -6,4 +6,5 @@ chromadb
 numpy
 gunicorn
 python-dotenv
-gdown
+google-auth
+google-api-python-client
