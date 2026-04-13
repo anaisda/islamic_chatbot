@@ -1,6 +1,5 @@
 flask
 flask-cors
 openai
-pinecone-client
-sentence-transformers
+pinecone
 gunicorn
