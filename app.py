@@ -11,7 +11,7 @@ CORS(app)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 CHROMADB_PATH = os.environ.get("CHROMADB_PATH", "./ChromaDB_export")
-GDRIVE_FILE_ID = os.environ.get("GDRIVE_FILE_ID", "")
+GDRIVE_FILE_ID = os.environ.get("GDRIVE_FILE_ID", "1YIkOsiF-c6MVEHVmkMcxf3pvTOh3NWAJ")
 SERVICE_ACCOUNT_B64 = os.environ.get("GOOGLE_SERVICE_ACCOUNT_B64", "")
 
 collection = None
