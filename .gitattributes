@@ -1,0 +1,2 @@
+*.zip filter=lfs diff=lfs merge=lfs -text
+ChromaDB_export/** filter=lfs diff=lfs merge=lfs -text
