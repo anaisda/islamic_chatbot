@@ -34,11 +34,12 @@ def chat():
     if not question:
         return jsonify({"error": "السؤال فارغ"}), 400
 
-    # Embedding avec le même modèle (768 dimensions)
-    from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
-    query_vector = model.encode(question).tolist()
-
+    
+    emb = oai.embeddings.create(
+        input=question,
+        model="text-embedding-3-small"
+    )
+    query_vector = emb.data[0].embedding
     # Recherche Pinecone
     results = index.query(vector=query_vector, top_k=5, include_metadata=True)
 
