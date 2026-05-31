@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ibn Baz API — Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0a0a0b;
+  --surface:  #111113;
+  --border:   #1e1e22;
+  --border2:  #2a2a30;
+  --gold:     #c9a84c;
+  --gold-dim: #8a6f2e;
+  --text:     #e8e6e0;
+  --muted:    #6b6860;
+  --green:    #4ade80;
+  --red:      #f87171;
+  --blue:     #60a5fa;
+  --purple:   #a78bfa;
+  --orange:   #fb923c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Geist', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 32px 0;
+}
+
+.sidebar-logo {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo .badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.sidebar-logo h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.1rem;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.sidebar-logo p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.nav-section {
+  padding: 20px 24px 8px;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+}
+
+.nav-link:hover, .nav-link.active {
+  background: rgba(201,168,76,0.08);
+  color: var(--text);
+}
+
+.nav-link .method {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.method.post { background: rgba(251,146,60,0.15); color: var(--orange); }
+.method.get  { background: rgba(96,165,250,0.15);  color: var(--blue); }
+
+/* ── Main content ── */
+.main {
+  padding: 0;
+  max-width: 860px;
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 64px 64px 48px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.hero h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.hero h2 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 540px;
+  line-height: 1.7;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.meta-value {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 48px 64px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.4rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.section-desc {
+  color: var(--muted);
+  margin-bottom: 28px;
+  font-size: 13px;
+}
+
+/* ── Endpoint card ── */
+.endpoint {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.endpoint-header:hover { background: rgba(255,255,255,0.02); }
+
+.method-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.method-badge.POST { background: rgba(251,146,60,0.12); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
+.method-badge.GET  { background: rgba(96,165,250,0.12);  color: var(--blue);   border: 1px solid rgba(96,165,250,0.2); }
+
+.endpoint-path {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+}
+
+.endpoint-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.auth-badge {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(167,139,250,0.1);
+  color: var(--purple);
+  border: 1px solid rgba(167,139,250,0.2);
+}
+
+.endpoint-body {
+  padding: 20px;
+}
+
+/* ── Code blocks ── */
+.code-block {
+  background: #0d0d0f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.copy-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover { background: var(--border2); color: var(--text); }
+.copy-btn.copied { color: var(--green); }
+
+pre {
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* Syntax colors */
+.k  { color: var(--purple); }   /* keyword */
+.s  { color: var(--green); }    /* string */
+.c  { color: var(--muted); font-style: italic; } /* comment */
+.n  { color: var(--blue); }     /* number */
+.f  { color: var(--orange); }   /* function */
+.p  { color: var(--gold); }     /* property */
+
+/* ── Table ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 12px 0;
+}
+
+th {
+  text-align: left;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--gold);
+  font-size: 11px;
+}
+
+td.type {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--blue);
+  font-size: 11px;
+}
+
+td.req { color: var(--red); font-size: 11px; }
+td.opt { color: var(--muted); font-size: 11px; }
+
+tr:last-child td { border-bottom: none; }
+
+/* ── Response example ── */
+.response-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.rtab {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 4px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: none;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+
+.rtab.active { background: var(--border2); color: var(--text); }
+
+/* ── Alert boxes ── */
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.alert.info  { background: rgba(96,165,250,0.07);  border: 1px solid rgba(96,165,250,0.2);  color: #93c5fd; }
+.alert.warn  { background: rgba(251,191,36,0.07);  border: 1px solid rgba(251,191,36,0.2);  color: #fcd34d; }
+.alert.tip   { background: rgba(74,222,128,0.07);  border: 1px solid rgba(74,222,128,0.2);  color: #86efac; }
+
+.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Quick start ── */
+.quickstart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.qs-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  text-decoration: none;
+}
+
+.qs-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.qs-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.qs-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── SDK examples ── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.tab {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Footer ── */
+footer {
+  padding: 32px 64px;
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="badge">v2.0.0</div>
+    <h1>Ibn Baz<br>Library API</h1>
+    <p>Islamic RAG System</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a href="#intro"      class="nav-link active">Introduction</a>
+    <a href="#auth"       class="nav-link">Authentication</a>
+    <a href="#quickstart" class="nav-link">Quick Start</a>
+    <a href="#errors"     class="nav-link">Error Codes</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Endpoints</div>
+    <a href="#ep-query"  class="nav-link"><span class="method post">POST</span>/v1/query</a>
+    <a href="#ep-search" class="nav-link"><span class="method post">POST</span>/v1/search</a>
+    <a href="#ep-status" class="nav-link"><span class="method get">GET</span>/v1/status</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Examples</div>
+    <a href="#ex-python"  class="nav-link">Python</a>
+    <a href="#ex-js"      class="nav-link">JavaScript</a>
+    <a href="#ex-dart"    class="nav-link">Dart / Flutter</a>
+    <a href="#ex-curl"    class="nav-link">cURL</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero" id="intro">
+    <div class="hero-eyebrow">ISLAMIC LIBRARY · RAG API</div>
+    <h2>Ibn Baz <em>Fatwa</em><br>Search API</h2>
+    <p>Semantic search over the complete library of Sheikh Ibn Baz رحمه الله. Ask questions in Arabic and receive verbatim citations with exact book and page references.</p>
+
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Base URL</span>
+        <span class="meta-value">https://islamic-chatbot-ukbz.onrender.com</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Vectors</span>
+        <span class="meta-value">27,000+</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Model</span>
+        <span class="meta-value">gpt-4o-mini</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTH -->
+  <section class="section" id="auth">
+    <h2 class="section-title">Authentication</h2>
+    <p class="section-desc">All <code>/v1/</code> endpoints require an API key. Pass it in the request header.</p>
+
+    <div class="alert info">
+      <span class="alert-icon">ℹ️</span>
+      <span>The <code>/api/chat</code> and <code>/api/status</code> endpoints are public (used by the web interface). Your app should use <code>/v1/</code> endpoints with the API key.</span>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">HTTP Header</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre>X-API-Key: your-secret-key</pre>
+    </div>
+
+    <div class="alert warn">
+      <span class="alert-icon">⚠️</span>
+      <span>Set your API key in Render → Environment → <code>CHATBOT_API_KEY</code>. Never expose it in client-side code.</span>
+    </div>
+  </section>
+
+  <!-- QUICK START -->
+  <section class="section" id="quickstart">
+    <h2 class="section-title">Quick Start</h2>
+    <p class="section-desc">Get your first response in under 2 minutes.</p>
+
+    <div class="quickstart-grid">
+      <div class="qs-card">
+        <div class="qs-num">01</div>
+        <div class="qs-title">Get your API key</div>
+        <div class="qs-desc">Set CHATBOT_API_KEY in Render environment variables</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">02</div>
+        <div class="qs-title">Make a request</div>
+        <div class="qs-desc">POST to /v1/query with your question in Arabic</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">03</div>
+        <div class="qs-title">Get the answer</div>
+        <div class="qs-desc">Receive verbatim citations with book and page numbers</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">04</div>
+        <div class="qs-title">Display in your app</div>
+        <div class="qs-desc">Use the sources array to show references to the user</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">cURL — first request</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="f">curl</span> -X POST https://islamic-chatbot-ukbz.onrender.com/v1/query \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -H <span class="s">"X-API-Key: your-secret-key"</span> \
+  -d <span class="s">'{"question": "ما حكم تارك الصلاة؟"}'</span></pre>
+    </div>
+  </section>
+
+  <!-- ENDPOINT: /v1/query -->
+  <section class="section" id="ep-query">
+    <h2 class="section-title">Endpoints</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method-badge POST">POST</span>
+        <span class="endpoint-path">/v1/query</span>
+        <span class="endpoint-desc">Ask a question, get an AI answer with citations</span>
+        <span class="auth-badge">🔑 auth</span>
+      </div>
+      <div class="endpoint-body">
+
+        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+          Performs semantic search over the Ibn Baz library, then uses GPT-4o-mini to generate a response with verbatim citations. Quranic verses and hadiths are automatically corrected to their canonical form.
+        </p>
+
+        <p style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text);">Request Body</p>
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr>
+            <td>question</td><td class="type">string</td><td class="req">required</td>
+            <td>The question in Arabic (max 1000 chars)</td>
+          </tr>
+          <tr>
+            <td>top_k</td><td class="type">integer</td><td class="opt">optional</td>
+            <td>Number of source passages to retrieve (default: 5, max: 10)</td>
+          </tr>
+          <tr>
+            <td>sources_only</td><td class="type">boolean</td><td class="opt">optional</td>
+            <td>If true, skip LLM generation and return raw passages only (faster, cheaper)</td>
+          </tr>
+        </table>
+
+        <p style="font-size:12px;font-weight:600;margin:16px 0 8px;color:var(--text);">Response</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">JSON Response — 200 OK</span>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre>{
+  <span class="p">"question"</span>:   <span class="s">"ما حكم تارك الصلاة؟"</span>,
+  <span class="p">"answer"</span>:     <span class="s">"قال الشيخ رحمه الله في كتاب مجموع الفتاوى..."</span>,
+  <span class="p">"sources"</span>: [
+    {
+      <span class="p">"book"</span>:    <span class="s">"مجموع فتاوى ابن باز - الجزء العاشر"</span>,
+      <span class="p">"page"</span>:    <span class="s">"142"</span>,
+      <span class="p">"scholar"</span>: <span class="s">"Ibn Baz"</span>,
+      <span class="p">"text"</span>:    <span class="s">"النص الحرفي من الكتاب..."</span>,
+      <span class="p">"score"</span>:   <span class="n">0.8821</span>
+    }
+  ],
+  <span class="p">"latency_ms"</span>: <span class="n">1243</span>,
+  <span class="p">"model"</span>:      <span class="s">"gpt-4o-mini"</span>,
+  <span class="p">"top_k"</span>:      <span class="n">5</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDPOINT: /v1/search -->
+    <div class="endpoint" id="ep-search">
+      <div class="endpoint-header">
+        <span class="method-badge POST">POST</span>
+        <span class="endpoint-path">/v1/search</span>
+        <span class="endpoint-desc">Semantic search — no LLM, raw passages only</span>
+        <span class="auth-badge">🔑 auth</span>
+      </div>
+      <div class="endpoint-body">
+        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+          Fast semantic search without LLM generation. Use this for autocomplete, suggestions, or when you want to process the results yourself.
+        </p>
+
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td>query</td><td class="type">string</td><td class="req">required</td><td>Search query in Arabic</td></tr>
+          <tr><td>top_k</td><td class="type">integer</td><td class="opt">optional</td><td>Number of results (default: 5, max: 20)</td></tr>
+        </table>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">JSON Response — 200 OK</span>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre>{
+  <span class="p">"query"</span>: <span class="s">"الصلاة"</span>,
+  <span class="p">"results"</span>: [
+    {
+      <span class="p">"book"</span>:    <span class="s">"أحكام السحر والكهانة"</span>,
+      <span class="p">"page"</span>:    <span class="s">"51"</span>,
+      <span class="p">"scholar"</span>: <span class="s">"Ibn Baz"</span>,
+      <span class="p">"text"</span>:    <span class="s">"النص الحرفي..."</span>,
+      <span class="p">"score"</span>:   <span class="n">0.7634</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDPOINT: /v1/status -->
+    <div class="endpoint" id="ep-status">
+      <div class="endpoint-header">
+        <span class="method-badge GET">GET</span>
+        <span class="endpoint-path">/v1/status</span>
+        <span class="endpoint-desc">Health check</span>
+        <span class="auth-badge">🔑 auth</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">JSON Response — 200 OK</span>
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre>{
+  <span class="p">"status"</span>:         <span class="s">"ok"</span>,
+  <span class="p">"document_count"</span>: <span class="n">27622</span>,
+  <span class="p">"version"</span>:        <span class="s">"2.0.0"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CODE EXAMPLES -->
+  <section class="section" id="ex-python">
+    <h2 class="section-title">Code Examples</h2>
+
+    <!-- Python -->
+    <p style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text);" id="ex-python">Python</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Python · requests</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="k">import</span> requests
+
+BASE_URL = <span class="s">"https://islamic-chatbot-ukbz.onrender.com"</span>
+API_KEY  = <span class="s">"your-secret-key"</span>
+
+headers = {
+    <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+    <span class="s">"X-API-Key"</span>:     API_KEY
+}
+
+<span class="c"># Ask a question</span>
+response = requests.<span class="f">post</span>(
+    f<span class="s">"{BASE_URL}/v1/query"</span>,
+    headers=headers,
+    json={
+        <span class="s">"question"</span>: <span class="s">"ما حكم تارك الصلاة؟"</span>,
+        <span class="s">"top_k"</span>:    <span class="n">5</span>
+    }
+)
+
+data = response.<span class="f">json</span>()
+<span class="f">print</span>(data[<span class="s">"answer"</span>])
+
+<span class="k">for</span> source <span class="k">in</span> data[<span class="s">"sources"</span>]:
+    <span class="f">print</span>(f<span class="s">"{source['book']} | ص {source['page']} | score: {source['score']}"</span>)
+
+<span class="c"># Search only (no LLM)</span>
+r = requests.<span class="f">post</span>(
+    f<span class="s">"{BASE_URL}/v1/search"</span>,
+    headers=headers,
+    json={<span class="s">"query"</span>: <span class="s">"الزكاة"</span>, <span class="s">"top_k"</span>: <span class="n">3</span>}
+)
+<span class="f">print</span>(r.<span class="f">json</span>())</pre>
+    </div>
+
+    <!-- JavaScript -->
+    <p style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--text);" id="ex-js">JavaScript / TypeScript</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">JavaScript · fetch</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="k">const</span> BASE_URL = <span class="s">"https://islamic-chatbot-ukbz.onrender.com"</span>;
+<span class="k">const</span> API_KEY  = <span class="s">"your-secret-key"</span>;
+
+<span class="k">async function</span> <span class="f">askQuestion</span>(question) {
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(`${BASE_URL}/v1/query`, {
+    method:  <span class="s">"POST"</span>,
+    headers: {
+      <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+      <span class="s">"X-API-Key"</span>:     API_KEY
+    },
+    body: <span class="f">JSON.stringify</span>({ question, top_k: <span class="n">5</span> })
+  });
+
+  <span class="k">const</span> data = <span class="k">await</span> res.<span class="f">json</span>();
+  <span class="k">return</span> data;
+}
+
+<span class="k">async function</span> <span class="f">search</span>(query) {
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(`${BASE_URL}/v1/search`, {
+    method:  <span class="s">"POST"</span>,
+    headers: {
+      <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+      <span class="s">"X-API-Key"</span>:     API_KEY
+    },
+    body: <span class="f">JSON.stringify</span>({ query, top_k: <span class="n">5</span> })
+  });
+  <span class="k">return</span> res.<span class="f">json</span>();
+}
+
+<span class="c">// Usage</span>
+<span class="k">const</span> result = <span class="k">await</span> <span class="f">askQuestion</span>(<span class="s">"ما حكم صيام المريض؟"</span>);
+console.<span class="f">log</span>(result.answer);
+result.sources.<span class="f">forEach</span>(s => console.<span class="f">log</span>(s.book, s.page));</pre>
+    </div>
+
+    <!-- Dart -->
+    <p style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--text);" id="ex-dart">Dart / Flutter</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">Dart · http package</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="k">import</span> <span class="s">'dart:convert'</span>;
+<span class="k">import</span> <span class="s">'package:http/http.dart'</span> <span class="k">as</span> http;
+
+<span class="k">const</span> baseUrl = <span class="s">'https://islamic-chatbot-ukbz.onrender.com'</span>;
+<span class="k">const</span> apiKey  = <span class="s">'your-secret-key'</span>;
+
+<span class="k">Future</span>&lt;<span class="k">Map</span>&lt;<span class="k">String</span>, <span class="k">dynamic</span>&gt;&gt; <span class="f">askQuestion</span>(<span class="k">String</span> question) <span class="k">async</span> {
+  <span class="k">final</span> response = <span class="k">await</span> http.<span class="f">post</span>(
+    Uri.<span class="f">parse</span>(<span class="s">'$baseUrl/v1/query'</span>),
+    headers: {
+      <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span>,
+      <span class="s">'X-API-Key'</span>:     apiKey,
+    },
+    body: <span class="f">jsonEncode</span>({
+      <span class="s">'question'</span>: question,
+      <span class="s">'top_k'</span>:    <span class="n">5</span>,
+    }),
+  );
+
+  <span class="k">if</span> (response.statusCode == <span class="n">200</span>) {
+    <span class="k">return</span> <span class="f">jsonDecode</span>(response.body);
+  } <span class="k">else</span> {
+    <span class="k">throw</span> <span class="f">Exception</span>(<span class="s">'API error: ${response.statusCode}'</span>);
+  }
+}
+
+<span class="c">// Usage in Flutter widget</span>
+<span class="k">final</span> result = <span class="k">await</span> <span class="f">askQuestion</span>(<span class="s">'ما حكم الزكاة على الذهب؟'</span>);
+<span class="k">final</span> answer  = result[<span class="s">'answer'</span>] <span class="k">as</span> <span class="k">String</span>;
+<span class="k">final</span> sources = result[<span class="s">'sources'</span>] <span class="k">as</span> <span class="k">List</span>;</pre>
+    </div>
+
+    <!-- cURL -->
+    <p style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--text);" id="ex-curl">cURL</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">cURL</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="c"># Full query with LLM answer</span>
+<span class="f">curl</span> -X POST https://islamic-chatbot-ukbz.onrender.com/v1/query \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -H <span class="s">"X-API-Key: your-secret-key"</span> \
+  -d <span class="s">'{"question":"ما حكم تارك الصلاة؟","top_k":5}'</span>
+
+<span class="c"># Search only (faster)</span>
+<span class="f">curl</span> -X POST https://islamic-chatbot-ukbz.onrender.com/v1/search \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -H <span class="s">"X-API-Key: your-secret-key"</span> \
+  -d <span class="s">'{"query":"الصلاة","top_k":3}'</span>
+
+<span class="c"># Health check</span>
+<span class="f">curl</span> -H <span class="s">"X-API-Key: your-secret-key"</span> \
+  https://islamic-chatbot-ukbz.onrender.com/v1/status</pre>
+    </div>
+  </section>
+
+  <!-- ERRORS -->
+  <section class="section" id="errors">
+    <h2 class="section-title">Error Codes</h2>
+    <table>
+      <tr><th>Code</th><th>Meaning</th><th>Solution</th></tr>
+      <tr><td>400</td><td>Bad request — missing or invalid parameters</td><td>Check your request body</td></tr>
+      <tr><td>401</td><td>Unauthorized — missing or invalid API key</td><td>Check X-API-Key header</td></tr>
+      <tr><td>404</td><td>Endpoint not found</td><td>Check the URL path</td></tr>
+      <tr><td>500</td><td>Internal server error</td><td>Retry after a few seconds</td></tr>
+    </table>
+
+    <div class="code-block" style="margin-top:16px;">
+      <div class="code-header">
+        <span class="code-lang">Error Response Format</span>
+      </div>
+      <pre>{
+  <span class="p">"error"</span>: <span class="s">"Unauthorized"</span>,
+  <span class="p">"code"</span>:  <span class="n">401</span>
+}</pre>
+    </div>
+
+    <div class="alert tip">
+      <span class="alert-icon">💡</span>
+      <span>Render free tier sleeps after 15 min of inactivity. The first request after sleep takes ~30 seconds. Use UptimeRobot to ping <code>/api/status</code> every 5 minutes to prevent this.</span>
+    </div>
+  </section>
+
+  <footer>
+    <span>Ibn Baz Library API · v2.0.0</span>
+    <span>Built with Flask · Pinecone · OpenAI</span>
+  </footer>
+
+</main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Highlight active nav on scroll
+const sections = document.querySelectorAll('[id]');
+const navLinks  = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>
