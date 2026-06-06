@@ -23,7 +23,6 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -34,7 +33,6 @@
     overflow-x: hidden;
   }
 
-  /* ── Noise texture overlay ── */
   body::before {
     content: '';
     position: fixed;
@@ -44,28 +42,18 @@
     z-index: 0;
   }
 
-  /* ── Geometric border pattern ── */
   body::after {
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0;
     height: 6px;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--gold) 0px, var(--gold) 8px,
-      var(--rust) 8px, var(--rust) 16px,
-      var(--green) 16px, var(--green) 24px,
-      var(--gold) 24px, var(--gold) 32px
-    );
+    background: repeating-linear-gradient(90deg,var(--gold) 0px,var(--gold) 8px,var(--rust) 8px,var(--rust) 16px,var(--green) 16px,var(--green) 24px,var(--gold) 24px,var(--gold) 32px);
     z-index: 100;
   }
 
-  /* ════════════════════════════
-     LAYOUT
-  ════════════════════════════ */
   .app {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 300px 1fr;
     grid-template-rows: auto 1fr;
     height: 100vh;
     position: relative;
@@ -90,26 +78,15 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 20px,
-      rgba(184,134,11,0.04) 20px,
-      rgba(184,134,11,0.04) 40px
-    );
+    background: repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(184,134,11,0.04) 20px,rgba(184,134,11,0.04) 40px);
   }
 
-  .header-icon {
-    font-size: 2.4rem;
-    line-height: 1;
-    flex-shrink: 0;
-  }
+  .header-icon { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
 
   .header-text h1 {
     font-family: 'Scheherazade New', serif;
     font-size: 1.65rem;
     font-weight: 700;
-    letter-spacing: 0.02em;
     color: var(--gold-lt);
   }
 
@@ -133,19 +110,12 @@
     color: rgba(212,168,67,0.6);
   }
 
-  .db-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #666;
-    transition: background 0.4s;
-  }
+  .db-dot { width: 8px; height: 8px; border-radius: 50%; background: #666; transition: background 0.4s; }
   .db-dot.ok   { background: #5cb85c; box-shadow: 0 0 6px #5cb85c; }
   .db-dot.fail { background: #d9534f; }
   .db-dot.loading { background: var(--gold); animation: pulse 1.2s infinite; }
 
-  @keyframes pulse {
-    0%,100% { opacity: 1; } 50% { opacity: 0.3; }
-  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 
   /* ── Sidebar ── */
   .sidebar {
@@ -173,19 +143,9 @@
     gap: 8px;
   }
 
-  .sidebar-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(184,134,11,0.3);
-  }
+  .sidebar-title::after { content:''; flex:1; height:1px; background:rgba(184,134,11,0.3); }
 
-  /* Suggested questions */
-  .questions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+  .questions-list { display: flex; flex-direction: column; gap: 8px; }
 
   .q-btn {
     background: rgba(184,134,11,0.08);
@@ -208,13 +168,7 @@
     transform: translateX(-3px);
   }
 
-  /* Sources panel */
-  .sources-panel {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0;
-  }
-
+  .sources-panel { flex: 1; overflow-y: auto; padding: 0; }
   .sources-panel::-webkit-scrollbar { width: 4px; }
   .sources-panel::-webkit-scrollbar-track { background: transparent; }
   .sources-panel::-webkit-scrollbar-thumb { background: rgba(184,134,11,0.3); border-radius: 2px; }
@@ -222,18 +176,14 @@
   .source-card {
     padding: 14px 18px;
     border-bottom: 1px solid rgba(184,134,11,0.1);
-    cursor: pointer;
     transition: background 0.2s;
     animation: slideIn 0.3s ease forwards;
     opacity: 0;
   }
 
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(10px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
+  @keyframes slideIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
 
-  .source-card:hover { background: rgba(184,134,11,0.08); }
+  .source-card:hover { background: rgba(184,134,11,0.06); }
 
   .source-book {
     font-family: 'Scheherazade New', serif;
@@ -252,26 +202,44 @@
     margin-bottom: 6px;
   }
 
-  .source-preview {
-    font-size: 0.8rem;
-    color: rgba(245,239,224,0.45);
-    line-height: 1.6;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
   .source-score {
     display: inline-block;
-    margin-top: 6px;
+    margin-top: 4px;
     font-size: 0.68rem;
     font-family: 'IBM Plex Mono', monospace;
-    color: var(--gold);
-    direction: ltr;
     background: rgba(184,134,11,0.12);
     padding: 1px 6px;
     border-radius: 3px;
+  }
+
+  .source-toggle {
+    margin-top: 8px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    color: var(--gold);
+    font-family: 'IBM Plex Mono', monospace;
+    direction: ltr;
+    transition: opacity 0.2s;
+    user-select: none;
+  }
+
+  .source-toggle:hover { opacity: 0.7; }
+
+  .source-full-text {
+    margin-top: 10px;
+    border-top: 1px solid rgba(184,134,11,0.2);
+    padding-top: 10px;
+    display: none;
+  }
+
+  .source-text-content {
+    font-size: 0.82rem;
+    color: rgba(245,239,224,0.75);
+    line-height: 1.9;
+    direction: rtl;
+    text-align: right;
+    white-space: pre-wrap;
+    font-family: 'Amiri', serif;
   }
 
   .no-sources {
@@ -282,15 +250,9 @@
     font-family: 'IBM Plex Mono', monospace;
   }
 
-  /* ── Main Chat Area ── */
-  .main {
-    display: flex;
-    flex-direction: column;
-    background: var(--paper);
-    overflow: hidden;
-  }
+  /* ── Main ── */
+  .main { display: flex; flex-direction: column; background: var(--paper); overflow: hidden; }
 
-  /* Chat messages */
   .messages {
     flex: 1;
     overflow-y: auto;
@@ -304,7 +266,6 @@
   .messages::-webkit-scrollbar-track { background: transparent; }
   .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* Welcome screen */
   .welcome {
     flex: 1;
     display: flex;
@@ -316,68 +277,22 @@
     animation: fadeUp 0.6s ease;
   }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-  .welcome-emblem {
-    font-size: 5rem;
-    line-height: 1;
-    margin-bottom: 24px;
-    filter: drop-shadow(0 4px 16px rgba(184,134,11,0.3));
-  }
+  .welcome-emblem { font-size: 5rem; line-height: 1; margin-bottom: 24px; filter: drop-shadow(0 4px 16px rgba(184,134,11,0.3)); }
+  .welcome h2 { font-family: 'Scheherazade New', serif; font-size: 2rem; color: var(--ink); margin-bottom: 10px; }
+  .welcome p { color: rgba(26,18,8,0.55); font-size: 1rem; max-width: 420px; line-height: 1.7; }
+  .welcome-divider { width: 60px; height: 2px; background: linear-gradient(90deg,transparent,var(--gold),transparent); margin: 20px auto; }
 
-  .welcome h2 {
-    font-family: 'Scheherazade New', serif;
-    font-size: 2rem;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-
-  .welcome p {
-    color: rgba(26,18,8,0.55);
-    font-size: 1rem;
-    max-width: 420px;
-    line-height: 1.7;
-  }
-
-  .welcome-divider {
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 20px auto;
-  }
-
-  /* Message bubbles */
-  .msg {
-    display: flex;
-    flex-direction: column;
-    max-width: 820px;
-    animation: fadeUp 0.3s ease;
-  }
-
+  .msg { display: flex; flex-direction: column; max-width: 820px; animation: fadeUp 0.3s ease; }
   .msg.user { align-self: flex-start; }
   .msg.bot  { align-self: flex-end; }
 
-  .msg-label {
-    font-size: 0.72rem;
-    font-family: 'IBM Plex Mono', monospace;
-    color: rgba(26,18,8,0.4);
-    margin-bottom: 6px;
-    padding: 0 4px;
-  }
-
+  .msg-label { font-size: 0.72rem; font-family: 'IBM Plex Mono', monospace; color: rgba(26,18,8,0.4); margin-bottom: 6px; padding: 0 4px; }
   .msg.user .msg-label { color: var(--rust); }
   .msg.bot  .msg-label { color: var(--green); text-align: left; }
 
-  .msg-bubble {
-    padding: 16px 22px;
-    border-radius: 2px;
-    line-height: 1.85;
-    font-size: 1.05rem;
-    position: relative;
-  }
+  .msg-bubble { padding: 16px 22px; border-radius: 2px; line-height: 1.85; font-size: 1.05rem; position: relative; }
 
   .msg.user .msg-bubble {
     background: var(--ink);
@@ -394,7 +309,6 @@
     white-space: pre-wrap;
   }
 
-  /* Typing indicator */
   .typing-indicator {
     display: flex;
     align-items: center;
@@ -408,21 +322,13 @@
     animation: fadeUp 0.3s ease;
   }
 
-  .typing-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--gold);
-    animation: bounce 1.2s infinite;
-  }
+  .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: bounce 1.2s infinite; }
   .typing-dot:nth-child(2) { animation-delay: 0.2s; }
   .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-  @keyframes bounce {
-    0%,60%,100% { transform: translateY(0); }
-    30% { transform: translateY(-8px); }
-  }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} }
 
-  /* ── Input area ── */
+  /* ── Input ── */
   .input-area {
     background: var(--ink);
     border-top: 2px solid var(--gold);
@@ -430,18 +336,8 @@
     position: relative;
   }
 
-  .input-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .input-wrap {
-    flex: 1;
-    position: relative;
-  }
+  .input-row { display: flex; align-items: flex-end; gap: 12px; max-width: 900px; margin: 0 auto; }
+  .input-wrap { flex: 1; position: relative; }
 
   textarea {
     width: 100%;
@@ -461,21 +357,9 @@
   }
 
   textarea::placeholder { color: rgba(212,168,67,0.3); }
+  textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,134,11,0.15); }
 
-  textarea:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(184,134,11,0.15);
-  }
-
-  .char-count {
-    position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 0.68rem;
-    font-family: 'IBM Plex Mono', monospace;
-    color: rgba(212,168,67,0.3);
-    direction: ltr;
-  }
+  .char-count { position: absolute; bottom: 8px; left: 12px; font-size: 0.68rem; font-family: 'IBM Plex Mono', monospace; color: rgba(212,168,67,0.3); direction: ltr; }
 
   .send-btn {
     background: var(--gold);
@@ -493,16 +377,8 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
 
-  .send-btn:hover:not(:disabled) {
-    background: var(--gold-lt);
-    transform: scale(1.05);
-  }
-
-  .send-btn:disabled {
-    background: rgba(184,134,11,0.3);
-    cursor: not-allowed;
-    transform: none;
-  }
+  .send-btn:hover:not(:disabled) { background: var(--gold-lt); transform: scale(1.05); }
+  .send-btn:disabled { background: rgba(184,134,11,0.3); cursor: not-allowed; }
 
   .clear-btn {
     background: transparent;
@@ -519,32 +395,11 @@
     flex-shrink: 0;
   }
 
-  .clear-btn:hover {
-    border-color: var(--rust);
-    color: var(--rust-lt);
-  }
+  .clear-btn:hover { border-color: var(--rust); color: var(--rust-lt); }
+  .input-hint { text-align: center; margin-top: 8px; font-size: 0.72rem; font-family: 'IBM Plex Mono', monospace; color: rgba(212,168,67,0.25); direction: ltr; }
 
-  .input-hint {
-    text-align: center;
-    margin-top: 8px;
-    font-size: 0.72rem;
-    font-family: 'IBM Plex Mono', monospace;
-    color: rgba(212,168,67,0.25);
-    direction: ltr;
-  }
+  .geo-divider { text-align: center; color: var(--gold); opacity: 0.4; font-size: 0.7rem; letter-spacing: 0.4em; margin: 4px 0; user-select: none; }
 
-  /* ── Decorative geometric dividers ── */
-  .geo-divider {
-    text-align: center;
-    color: var(--gold);
-    opacity: 0.4;
-    font-size: 0.7rem;
-    letter-spacing: 0.4em;
-    margin: 4px 0;
-    user-select: none;
-  }
-
-  /* ── Error toast ── */
   .toast {
     position: fixed;
     bottom: 100px;
@@ -563,39 +418,22 @@
     pointer-events: none;
   }
 
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ── Responsive ── */
+  .pattern-bg { position: absolute; inset: 0; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b8860b' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+
   @media (max-width: 768px) {
-    .app {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr auto;
-    }
-    .sidebar {
-      display: none;
-    }
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
     header { padding: 14px 16px; }
     .messages { padding: 20px 16px; }
     .input-area { padding: 14px 16px; }
-  }
-
-  /* ── Islamic pattern SVG background for welcome ── */
-  .pattern-bg {
-    position: absolute;
-    inset: 0;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b8860b' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
   }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <!-- HEADER -->
   <header>
     <div class="header-icon">📚</div>
     <div class="header-text">
@@ -608,16 +446,18 @@
     </div>
   </header>
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-title">أسئلة مقترحة</div>
-      <div class="questions-list" id="suggestedQuestions">
+      <div class="questions-list">
+        <button class="q-btn" onclick="askSuggested(this)">ما حكم تارك الصلاة؟</button>
         <button class="q-btn" onclick="askSuggested(this)">ما حكم الزكاة على الذهب؟</button>
         <button class="q-btn" onclick="askSuggested(this)">ما حكم صيام المريض؟</button>
+        <button class="q-btn" onclick="askSuggested(this)">ما الفرق بين الكفر الأكبر والأصغر؟</button>
+        <button class="q-btn" onclick="askSuggested(this)">ما حكم قراءة القرآن من الهاتف في الصلاة؟</button>
+        <button class="q-btn" onclick="askSuggested(this)">ما شروط صحة الصلاة؟</button>
       </div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-title">المصادر</div>
     </div>
@@ -626,7 +466,6 @@
     </div>
   </aside>
 
-  <!-- MAIN CHAT -->
   <main class="main">
     <div class="messages" id="messages">
       <div class="welcome" id="welcomeScreen">
@@ -634,13 +473,10 @@
         <div class="welcome-emblem">☪️</div>
         <h2>أهلاً وسهلاً</h2>
         <div class="welcome-divider"></div>
-        <p>
-          اسأل أي سؤال فقهي وسيتم الإجابة عليه بالنص الحرفي من مؤلفات الشيخ ابن باز رحمه الله مع ذكر المصدر والصفحة.
-        </p>
+        <p>اسأل أي سؤال فقهي وسيتم الإجابة عليه بالنص الحرفي من مؤلفات الشيخ ابن باز رحمه الله مع ذكر المصدر والصفحة.</p>
       </div>
     </div>
 
-    <!-- INPUT AREA -->
     <div class="input-area">
       <div class="input-row">
         <div class="input-wrap">
@@ -654,26 +490,20 @@
           ></textarea>
           <span class="char-count" id="charCount">0 / 800</span>
         </div>
-        <button class="send-btn" id="sendBtn" onclick="sendQuestion()" title="إرسال">
-          ➤
-        </button>
-        <button class="clear-btn" onclick="clearChat()" title="مسح المحادثة">
-          🗑
-        </button>
+        <button class="send-btn" id="sendBtn" onclick="sendQuestion()" title="إرسال">➤</button>
+        <button class="clear-btn" onclick="clearChat()" title="مسح المحادثة">🗑</button>
       </div>
       <div class="input-hint">Ctrl + Enter to send · ESC to clear</div>
     </div>
   </main>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-  const API = '';  // Vide = même origine (Flask sur localhost:5000)
+  const API = '';
   let isLoading = false;
 
-  // ─── Status check ───
   async function checkStatus() {
     const dot  = document.getElementById('dbDot');
     const text = document.getElementById('dbStatusText');
@@ -694,7 +524,6 @@
   }
   checkStatus();
 
-  // ─── Input handling ───
   function handleInput(ta) {
     ta.style.height = 'auto';
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
@@ -702,14 +531,8 @@
   }
 
   function handleKey(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
-      sendQuestion();
-    }
-    if (e.key === 'Escape') {
-      document.getElementById('questionInput').value = '';
-      handleInput(document.getElementById('questionInput'));
-    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); sendQuestion(); }
+    if (e.key === 'Escape') { document.getElementById('questionInput').value = ''; handleInput(document.getElementById('questionInput')); }
   }
 
   function askSuggested(btn) {
@@ -718,25 +541,21 @@
     sendQuestion();
   }
 
-  // ─── Send question ───
   async function sendQuestion() {
-    const input = document.getElementById('questionInput');
+    const input    = document.getElementById('questionInput');
     const question = input.value.trim();
     if (!question || isLoading) return;
 
     isLoading = true;
     document.getElementById('sendBtn').disabled = true;
 
-    // Hide welcome screen
     const welcome = document.getElementById('welcomeScreen');
     if (welcome) welcome.remove();
 
-    // Append user message
     appendMessage('user', question);
     input.value = '';
     handleInput(input);
 
-    // Show typing indicator
     const typingId = showTyping();
 
     try {
@@ -760,7 +579,7 @@
     } catch (e) {
       removeTyping(typingId);
       showToast('لا يمكن الوصول إلى الخادم');
-      appendMessage('bot', '⚠️ لا يمكن الاتصال بالخادم. تأكد من تشغيل app.py');
+      appendMessage('bot', '⚠️ لا يمكن الاتصال بالخادم.');
     }
 
     isLoading = false;
@@ -768,43 +587,29 @@
     input.focus();
   }
 
-  // ─── Message rendering ───
   function appendMessage(role, text) {
     const msgs = document.getElementById('messages');
     const div  = document.createElement('div');
     div.className = `msg ${role}`;
-
     const label = role === 'user' ? '🙋 السؤال' : '📖 الجواب من المكتبة';
-    div.innerHTML = `
-      <div class="msg-label">${label}</div>
-      <div class="msg-bubble">${escapeHtml(text)}</div>
-    `;
-
-    // Add geo divider between messages
+    div.innerHTML = `<div class="msg-label">${label}</div><div class="msg-bubble">${escapeHtml(text)}</div>`;
     if (msgs.children.length > 0) {
-      const div2 = document.createElement('div');
-      div2.className = 'geo-divider';
-      div2.textContent = '✦ ✦ ✦';
-      msgs.appendChild(div2);
+      const d = document.createElement('div');
+      d.className = 'geo-divider';
+      d.textContent = '✦ ✦ ✦';
+      msgs.appendChild(d);
     }
-
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
   }
 
   function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/\n/g, '<br>');
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
   }
 
-  // ─── Typing indicator ───
   let typingCounter = 0;
   function showTyping() {
-    const id  = `typing_${++typingCounter}`;
+    const id   = `typing_${++typingCounter}`;
     const msgs = document.getElementById('messages');
     const div  = document.createElement('div');
     div.id = id;
@@ -820,30 +625,44 @@
     if (el) el.remove();
   }
 
-  // ─── Sources sidebar ───
   function renderSources(sources) {
     const panel = document.getElementById('sourcesPanel');
     if (!sources || sources.length === 0) {
       panel.innerHTML = '<div class="no-sources">لا توجد مصادر</div>';
       return;
     }
-
     panel.innerHTML = '';
     sources.forEach((s, i) => {
-      const card = document.createElement('div');
+      const card  = document.createElement('div');
       card.className = 'source-card';
       card.style.animationDelay = `${i * 0.08}s`;
+      const score      = s.score || 0;
+      const scoreColor = score > 0.7 ? '#5cb85c' : score > 0.5 ? '#f0ad4e' : '#d9534f';
+      const fullText   = s.text || s.preview || '';
       card.innerHTML = `
         <div class="source-book">${escapeHtml(s.book)}</div>
         <div class="source-meta">ص ${s.page} · ${s.scholar}</div>
-        <div class="source-preview">${escapeHtml(s.preview)}</div>
-        <span class="source-score">score: ${s.score}</span>
+        <span class="source-score" style="color:${scoreColor}">score: ${s.score}</span>
+        <div class="source-toggle" onclick="toggleSource(this)">▼ عرض النص كاملاً</div>
+        <div class="source-full-text">
+          <div class="source-text-content">${escapeHtml(fullText)}</div>
+        </div>
       `;
       panel.appendChild(card);
     });
   }
 
-  // ─── Clear chat ───
+  function toggleSource(btn) {
+    const fullText = btn.nextElementSibling;
+    if (fullText.style.display === 'block') {
+      fullText.style.display = 'none';
+      btn.textContent = '▼ عرض النص كاملاً';
+    } else {
+      fullText.style.display = 'block';
+      btn.textContent = '▲ إخفاء النص';
+    }
+  }
+
   function clearChat() {
     const msgs = document.getElementById('messages');
     msgs.innerHTML = `
@@ -857,7 +676,6 @@
     document.getElementById('sourcesPanel').innerHTML = '<div class="no-sources">ستظهر المصادر هنا بعد السؤال</div>';
   }
 
-  // ─── Toast ───
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
