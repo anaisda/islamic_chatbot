@@ -20,15 +20,15 @@ oai   = OpenAI(api_key=OPENAI_API_KEY)
 SYSTEM_PROMPT = """أنت مساعد إسلامي متخصص في نقل كلام الشيخ ابن باز رحمه الله.
 
 قواعد صارمة لا تُخالَف أبداً:
-1. انقل النص الحرفي كما هو من المصادر دون تغيير أي كلمة
-2. الآيات القرآنية: اكتبها بالرسم العثماني الصحيح تماماً كما في المصحف الشريف
-3. الأحاديث النبوية: انقلها حرفياً كما وردت في المصدر دون تعديل
-4. إذا وجدت خطأ مطبعياً في آية أو حديث في المصدر، صححه من المصحف أو كتب الحديث المعتمدة
-5. اذكر المصدر: (كتاب: [اسم الكتاب]، ص [رقم]) بعد كل اقتباس
-6. لا تضف أي كلام من عندك خارج المصادر
-7. إذا لم تجد إجابة صريحة، قل: لم أجد نصاً صريحاً في هذه المصادر"""
+1. ابحث في جميع المصادر المعطاة حتى لو كانت ذات صلة جزئية بالسؤال
+2. انقل النص الحرفي كما هو من المصادر دون تغيير أي كلمة
+3. الآيات القرآنية: اكتبها بالرسم العثماني الصحيح تماماً كما في المصحف الشريف
+4. الأحاديث النبوية: انقلها حرفياً كما وردت في المصدر دون تعديل
+5. إذا وجدت خطأ مطبعياً في آية أو حديث في المصدر، صححه من المصحف أو كتب الحديث المعتمدة
+6. اذكر المصدر: (كتاب: [اسم الكتاب]، ص [رقم]) بعد كل اقتباس
+7. لا تضف أي كلام من عندك خارج المصادر
+8. إذا لم تجد إجابة صريحة، اذكر أقرب النصوص ذات الصلة ثم قل: لم أجد نصاً صريحاً في هذه المصادر"""
 
-# ── Auth ──
 def require_api_key(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -38,8 +38,7 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated
 
-# ── Core functions ──
-def search_pinecone(question, top_k=5):
+def search_pinecone(question, top_k=8):
     emb = oai.embeddings.create(input=question, model="text-embedding-3-small")
     results = index.query(
         vector=emb.data[0].embedding,
@@ -74,10 +73,6 @@ def build_answer(question, matches):
     )
     return response.choices[0].message.content, sources
 
-# ════════════════════════════
-# PUBLIC (frontend)
-# ════════════════════════════
-
 @app.route("/")
 def home():
     return send_from_directory("static", "index.html")
@@ -104,27 +99,21 @@ def chat():
         return jsonify({"error": "السؤال فارغ"}), 400
     if len(question) > 1000:
         return jsonify({"error": "السؤال طويل جداً"}), 400
-    matches        = search_pinecone(question, top_k=5)
-    answer, sources = build_answer(question, matches)
+    matches, sources = search_pinecone(question, top_k=8), []
+    answer, sources  = build_answer(question, matches)
     return jsonify({"answer": answer, "sources": sources})
-
-# ════════════════════════════
-# PRIVATE API (your app)
-# ════════════════════════════
 
 @app.route("/v1/query", methods=["POST"])
 @require_api_key
 def api_query():
     data         = request.get_json()
     question     = data.get("question", "").strip()
-    top_k        = min(int(data.get("top_k", 5)), 10)
+    top_k        = min(int(data.get("top_k", 8)), 10)
     sources_only = data.get("sources_only", False)
-
     if not question:
         return jsonify({"error": "question is required", "code": 400}), 400
     if len(question) > 1000:
         return jsonify({"error": "question too long", "code": 400}), 400
-
     start   = time.time()
     matches = search_pinecone(question, top_k=top_k)
     sources = [{
@@ -134,14 +123,12 @@ def api_query():
         "text":    m['metadata'].get('text', ''),
         "score":   round(m['score'], 4)
     } for m in matches]
-
     if sources_only:
         return jsonify({
             "question":   question,
             "sources":    sources,
             "latency_ms": round((time.time() - start) * 1000)
         })
-
     answer, _ = build_answer(question, matches)
     return jsonify({
         "question":   question,
@@ -157,7 +144,7 @@ def api_query():
 def api_search():
     data  = request.get_json()
     query = data.get("query", "").strip()
-    top_k = min(int(data.get("top_k", 5)), 20)
+    top_k = min(int(data.get("top_k", 8)), 20)
     if not query:
         return jsonify({"error": "query is required"}), 400
     matches = search_pinecone(query, top_k=top_k)
