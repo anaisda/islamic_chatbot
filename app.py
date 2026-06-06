@@ -14,20 +14,24 @@ PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY", "")
 API_KEY          = os.environ.get("CHATBOT_API_KEY", "dev-secret-key")
 
 pc    = Pinecone(api_key=PINECONE_API_KEY)
-index = pc.Index("ibnbaz")
+index = pc.Index("ibnbaz")  # ← ton index qui contient les deux
 oai   = OpenAI(api_key=OPENAI_API_KEY)
 
-SYSTEM_PROMPT = """أنت مساعد إسلامي متخصص في نقل كلام الشيخ ابن باز رحمه الله.
+SYSTEM_PROMPT = """أنت مساعد إسلامي متخصص في نقل كلام العلماء الكبار رحمهم الله.
+
+المصادر المتاحة: فتاوى الشيخ ابن باز رحمه الله، ومؤلفات الشيخ ابن عثيمين رحمه الله.
 
 قواعد صارمة لا تُخالَف أبداً:
-1. ابحث في جميع المصادر المعطاة حتى لو كانت ذات صلة جزئية بالسؤال
-2. انقل النص الحرفي كما هو من المصادر دون تغيير أي كلمة
-3. الآيات القرآنية: اكتبها بالرسم العثماني الصحيح تماماً كما في المصحف الشريف
-4. الأحاديث النبوية: انقلها حرفياً كما وردت في المصدر دون تعديل
-5. إذا وجدت خطأ مطبعياً في آية أو حديث في المصدر، صححه من المصحف أو كتب الحديث المعتمدة
-6. اذكر المصدر: (كتاب: [اسم الكتاب]، ص [رقم]) بعد كل اقتباس
-7. لا تضف أي كلام من عندك خارج المصادر
-8. إذا لم تجد إجابة صريحة، اذكر أقرب النصوص ذات الصلة ثم قل: لم أجد نصاً صريحاً في هذه المصادر"""
+1. ابحث في جميع المصادر المعطاة واذكر رأي كل عالم إن وُجد
+2. إذا اتفق العالمان في المسألة فاذكر ذلك
+3. إذا اختلفا فاعرض رأي كل منهما بوضوح مع ذكر اسمه
+4. انقل النص الحرفي كما هو من المصادر دون تغيير أي كلمة
+5. الآيات القرآنية: اكتبها بالرسم العثماني الصحيح تماماً كما في المصحف الشريف
+6. الأحاديث النبوية: انقلها حرفياً كما وردت في المصدر دون تعديل
+7. إذا وجدت خطأ مطبعياً في آية أو حديث، صححه من المصحف أو كتب الحديث المعتمدة
+8. اذكر المصدر بعد كل اقتباس: (كتاب: [اسم الكتاب]، ص [رقم])
+9. لا تضف أي كلام من عندك خارج المصادر
+10. إذا لم تجد إجابة صريحة، اذكر أقرب النصوص ذات الصلة ثم قل: لم أجد نصاً صريحاً في هذه المصادر"""
 
 def require_api_key(f):
     @wraps(f)
@@ -38,14 +42,26 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated
 
-def search_pinecone(question, top_k=8):
+def search_pinecone(question, top_k=10, scholar=None):
     emb = oai.embeddings.create(input=question, model="text-embedding-3-small")
+    
+    filter_dict = {"scholar": {"$eq": scholar}} if scholar else None
+    
     results = index.query(
         vector=emb.data[0].embedding,
         top_k=top_k,
-        include_metadata=True
+        include_metadata=True,
+        filter=filter_dict
     )
     return results['matches']
+
+def search_both_scholars(question, top_k_each=5):
+    """Chercher séparément dans chaque scholar pour garantir les deux points de vue."""
+    matches_baz      = search_pinecone(question, top_k=top_k_each, scholar="Ibn Baz")
+    matches_othaymeen = search_pinecone(question, top_k=top_k_each, scholar="Ibn Othaymeen")
+    
+    # Combiner les résultats — Ibn Baz en premier, Ibn Othaymeen ensuite
+    return matches_baz + matches_othaymeen
 
 def build_answer(question, matches):
     context_parts = []
@@ -53,11 +69,14 @@ def build_answer(question, matches):
     for match in matches:
         meta = match['metadata']
         text = meta.get('text', '')
-        context_parts.append(f"[{meta.get('book','?')} | ص {meta.get('printed_page','?')}]\n{text}")
+        scholar = meta.get('scholar', '?')
+        context_parts.append(
+            f"[العالم: {scholar} | كتاب: {meta.get('book','?')} | ص {meta.get('printed_page','?')}]\n{text}"
+        )
         sources.append({
             "book":    meta.get('book', '?'),
             "page":    meta.get('printed_page', '?'),
-            "scholar": meta.get('scholar', 'ابن باز'),
+            "scholar": scholar,
             "text":    text,
             "preview": text[:300],
             "score":   round(match['score'], 3)
@@ -95,12 +114,18 @@ def status():
 def chat():
     data     = request.get_json()
     question = data.get("question", "").strip()
+    scholar  = data.get("scholar", None)  # optionnel : "Ibn Baz" ou "Ibn Othaymeen"
     if not question:
         return jsonify({"error": "السؤال فارغ"}), 400
     if len(question) > 1000:
         return jsonify({"error": "السؤال طويل جداً"}), 400
-    matches, sources = search_pinecone(question, top_k=8), []
-    answer, sources  = build_answer(question, matches)
+
+    if scholar:
+        matches = search_pinecone(question, top_k=8, scholar=scholar)
+    else:
+        matches = search_both_scholars(question, top_k_each=5)
+
+    answer, sources = build_answer(question, matches)
     return jsonify({"answer": answer, "sources": sources})
 
 @app.route("/v1/query", methods=["POST"])
@@ -108,27 +133,36 @@ def chat():
 def api_query():
     data         = request.get_json()
     question     = data.get("question", "").strip()
-    top_k        = min(int(data.get("top_k", 8)), 10)
+    top_k        = min(int(data.get("top_k", 5)), 10)
     sources_only = data.get("sources_only", False)
+    scholar      = data.get("scholar", None)
+
     if not question:
         return jsonify({"error": "question is required", "code": 400}), 400
     if len(question) > 1000:
         return jsonify({"error": "question too long", "code": 400}), 400
-    start   = time.time()
-    matches = search_pinecone(question, top_k=top_k)
+
+    start = time.time()
+    if scholar:
+        matches = search_pinecone(question, top_k=top_k, scholar=scholar)
+    else:
+        matches = search_both_scholars(question, top_k_each=top_k)
+
     sources = [{
         "book":    m['metadata'].get('book', '?'),
         "page":    m['metadata'].get('printed_page', '?'),
-        "scholar": m['metadata'].get('scholar', 'Ibn Baz'),
+        "scholar": m['metadata'].get('scholar', '?'),
         "text":    m['metadata'].get('text', ''),
         "score":   round(m['score'], 4)
     } for m in matches]
+
     if sources_only:
         return jsonify({
             "question":   question,
             "sources":    sources,
             "latency_ms": round((time.time() - start) * 1000)
         })
+
     answer, _ = build_answer(question, matches)
     return jsonify({
         "question":   question,
@@ -142,18 +176,22 @@ def api_query():
 @app.route("/v1/search", methods=["POST"])
 @require_api_key
 def api_search():
-    data  = request.get_json()
-    query = data.get("query", "").strip()
-    top_k = min(int(data.get("top_k", 8)), 20)
+    data    = request.get_json()
+    query   = data.get("query", "").strip()
+    top_k   = min(int(data.get("top_k", 5)), 20)
+    scholar = data.get("scholar", None)
     if not query:
         return jsonify({"error": "query is required"}), 400
-    matches = search_pinecone(query, top_k=top_k)
+    if scholar:
+        matches = search_pinecone(query, top_k=top_k, scholar=scholar)
+    else:
+        matches = search_both_scholars(query, top_k_each=top_k)
     return jsonify({
         "query":   query,
         "results": [{
             "book":    m['metadata'].get('book', '?'),
             "page":    m['metadata'].get('printed_page', '?'),
-            "scholar": m['metadata'].get('scholar', 'Ibn Baz'),
+            "scholar": m['metadata'].get('scholar', '?'),
             "text":    m['metadata'].get('text', ''),
             "score":   round(m['score'], 4)
         } for m in matches]
